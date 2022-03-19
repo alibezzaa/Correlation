@@ -1,0 +1,99 @@
+---
+title: "Biserial & partial correlation"
+author: "AliB"
+date: "3/16/2022"
+output: html_document
+---
+Concept 1 : corrélation bisériale ponctuelle (point-biserial correlation)
+
+```{r}
+mydata = read.csv2("pbcorr.csv", sep = ",")
+summary(mydata)
+names(mydata) = c("temps", "sexe", "recode")
+```
+
+
+calcul avec r Pearson et rho de Spearman
+
+```{r}
+r  = cor(mydata$sexe, mydata$temps)
+cor.test(mydata$sexe, mydata$temps, method = "pearson")
+cor.test(mydata$recode, mydata$temps, method = "spearman")
+```
+
+
+calcul manuel
+
+```{r}
+library(polycor)
+catFreq = table(mydata$sexe)
+prop.table(catFreq)
+r_bs = r*sqrt(0.5333*0.466666)/0.3977
+r_bs
+```
+
+Calcul avec le package polyserial
+
+```{r}
+polyserial(mydata$temps, mydata$sexe)
+```
+
+significativé 
+```{r}
+ES = sqrt(0.533*0.467)/(0.3977*sqrt(60))
+```
+
+p value
+
+```{r}
+Z = r_bs/ES
+2*(1 - pnorm(Z))
+```
+
+concept 2: corrélation partielle 
+
+importer les données
+```{r}
+mydata = readxl::read_xls("Attitude_ville.xls")
+summary(mydata)
+names(mydata) = c("Resp", "Attitude_Ville", "Duree", "Meteo")
+head(mydata)
+```
+
+ correlation entre l'attitude et la durée, r de pearson
+```{r}
+cor(mydata$Attitude_Ville, mydata$Duree)
+cor.test(mydata$Attitude_Ville, mydata$Duree)
+```
+
+Conclusion: Les politiciens qui souhaitent influencer les personnes ayant une attitud favorable envers la ville doivent cibler les résidents de longue date de cette ville.
+
+matrice de corrélations 
+```{r}
+cor(mydata[, 2:4])
+```
+
+Voici deux questions où l'on va utiliser une corrélation partielle
+
+exemple 1 : Quel est le lien entre l'attitude envers la ville et la durée de résidence après contrôle de l'effet de l'attitude envers la météo?
+exemple 2 : Dans quelle mesure les ventes sont-elles liées aux 
+dépenses de publicité lorsque l'effet du prix est contrôlé ? 
+
+Pour mesurer le lien exclusif entre l'attitude envers la ville et la durée
+il faut prendre en considération l'influence de la météo
+
+calculer et enregister la corrélation partielle dans un objet
+```{r}
+install.packages("ggm")
+library(ggm)
+cp = pcor(c("Attitude_Ville", "Duree", "Meteo"), var(mydata))
+cp
+cp**2 # variance partagée
+```
+
+Tester cette corrélation partielle
+```{r}
+pcor.test(cp, 1, 12)
+```
+
+Conclusion: La relation n'a pas changé
