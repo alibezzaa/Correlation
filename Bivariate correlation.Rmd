@@ -1,0 +1,72 @@
+---
+title: "Bivariate Correlation"
+author: "AliB"
+date: "3/4/2022"
+output:
+  word_document: default
+  html_document: default
+---
+Packages à utiliser
+```{r}
+library(datasets) # données
+library(vcd) # données
+library(Hmisc)# cor.test
+```
+
+
+Importer les données
+```{r}
+data("airquality")
+summary(airquality)
+```
+
+corrélation entre deux variables quantitatives
+Le coefficient de Pearson r 
+
+```{r}
+cor(airquality[, 2:4], use = "complete.obs", method = "pearson")
+
+```
+
+corrélation entre deux variables quantitatives avec rcorr
+
+```{r}
+library(Hmisc)
+
+rcorr(as.matrix(airquality[, 2:4]))
+```
+
+Constuire des intervalles de confiance avec cor.test
+
+```{r}
+cor.test(airquality$Temp, airquality$Wind)
+cor.test(airquality$Temp, airquality$Wind, alternative = "less")
+```
+
+Déterminer la variance expliquée
+
+```{r}
+cor(airquality[,2:4], use = "complete.obs") ^2
+round(cor(airquality[,2:4], use = "complete.obs")^2 *100, 2)
+```
+
+Corrélation entre une variable qualitative ordinale et une variable quantitative.
+Le coefficient de Spearman est un statistique non paramétrique. Il classe les données et applique la formule de corrélation de Pearson. La variable doit être ordinale.
+
+Importer les données
+```{r}
+data("Arthritis")
+summary(Arthritis)
+```
+
+Tester la corrélation et déterminer l'intervalle de confiance
+```{r}
+cor(as.numeric(Arthritis$Improved), Arthritis$Age, method = "pearson")
+cor(as.numeric(Arthritis$Improved), Arthritis$Age, method = "spearman")
+cor.test(as.numeric(Arthritis$Improved), Arthritis$Age, method = "spearman")
+```
+
+Comment rapporter les résulats d'une corrélation
+
+Il existe une relation significative entre la température et le vent, r = -.46, p (unilatéral) < .001.
+L'âge est significativement lié à l'état d'amélioration rs = .26, p<.05.
